@@ -13,7 +13,7 @@ import org.junit.Test;
 public class AppTest extends JUnitRouteTest {
 
   @Test
-  public void testhello() {
+  public void testMantap() {
     ActorSystem testSystem = ActorSystem.create("test-system");
     ActorRef handler = testSystem.actorOf(MotdActor.props("mantap!"));
     TestRoute appRoute = testRoute(App.appRoute(handler));
