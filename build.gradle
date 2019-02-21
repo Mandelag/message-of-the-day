@@ -30,12 +30,12 @@ dependencies {
     implementation 'com.google.guava:guava:27.0.1-jre'
 
     testCompile group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: '2.5.21'
-    compile group: 'com.typesafe.akka', name: 'akka-stream_2.12', version:'2.5.21'
-    compile group: 'com.typesafe.akka', name: 'akka-http_2.12', version:'10.1.7'
+    compile group: 'com.typesafe.akka', name: 'akka-stream_2.12', version: '2.5.21'
+    compile group: 'com.typesafe.akka', name: 'akka-http_2.12', version: '10.1.7'
     compile group: 'com.typesafe.akka', name: 'akka-http-testkit_2.12', version: '10.1.7'
 
     testCompile group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: '2.5.21'
-    testCompile group: 'com.typesafe.akka', name: 'akka-stream-testkit_2.12', version:'2.5.21'
+    testCompile group: 'com.typesafe.akka', name: 'akka-stream-testkit_2.12', version: '2.5.21'
 
     testCompile "junit:junit:4.12"
     testRuntime "org.junit.vintage:junit-vintage-engine:5.4.0"
@@ -53,6 +53,22 @@ shadowJar {
     append('reference.conf')
     append('akka-http-version.conf')
     append('version.conf')
+}
+
+// https://stackoverflow.com/questions/22605947/how-do-set-environment-variable-in-gradle-via-task
+// https://stackoverflow.com/questions/50509084/gradle-environment-variables-load-from-file
+tasks.withType(JavaExec) {
+    file('.env').readLines().each() {
+        if (!it.isEmpty() && !it.startsWith("#")) {
+            def pos = it.indexOf("=")
+            def key = it.substring(0, pos)
+            def value = it.substring(pos + 1)
+
+            if (System.getenv(key) == null) {
+                environment key, value
+            }
+        }
+    }
 }
 
 // Define the main class for the application
