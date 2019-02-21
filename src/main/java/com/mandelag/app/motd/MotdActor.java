@@ -1,4 +1,4 @@
-package com.example.app;
+package com.mandelag.app.motd;
 
 import akka.actor.AbstractActor;
 import akka.actor.Props;
