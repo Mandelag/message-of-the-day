@@ -17,19 +17,24 @@ import akka.http.javadsl.server.Route;
 import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.CompletionStage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static akka.http.javadsl.server.Directives.*;
 
 public class App {
+
+  private static final Logger logger = LoggerFactory.getLogger("Main");
+
   public static void main(String[] args) throws IOException {
     ActorSystem system = ActorSystem.create("routes");
     ActorSystem motdSystem = ActorSystem.create("motd-system");
 
-    final ActorMaterializer materializer = ActorMaterializer.create(system);
+    final String BIND_ADDRESS = System.getenv("BIND_ADDRESS") != null ? System.getenv("BIND_ADDRESS") : "0.0.0.0";
+    final int BIND_PORT = System.getenv("BIND_PORT") != null ? Integer.parseInt(System.getenv("BIND_PORT")) : 8080;
 
     final ActorRef motdHandler = motdSystem.actorOf(MotdActor.props(
         "Mantap!",
@@ -39,16 +44,24 @@ public class App {
         "Strategy pattern!"
     ));
 
+    final ActorMaterializer materializer = ActorMaterializer.create(system);
     final Http http = Http.get(system);
 
     final Flow<HttpRequest, HttpResponse, NotUsed> routes = appRoute(motdHandler).flow(system, materializer);
-    final CompletionStage<ServerBinding> binding = http.bindAndHandle(routes, ConnectHttp.toHost("0.0.0.0", 8080), materializer);
+    final CompletionStage<ServerBinding> binding = http.bindAndHandle(routes, ConnectHttp.toHost(BIND_ADDRESS, BIND_PORT), materializer);
 
-    System.out.println("Server started...");
+    logger.info("Server started at {}:{}.\r\nPress any key to stop the server.", BIND_ADDRESS, BIND_PORT);
+
     System.in.read();
 
-    binding.thenCompose(ServerBinding::unbind)
-        .thenAccept(unbound -> system.terminate());
+    binding
+        .thenCompose(ServerBinding::unbind)
+        .thenAccept(unbound -> {
+          system.terminate();
+          motdSystem.terminate();
+          logger.info("Server stopped.");
+          return;
+        });
   }
 
   public static Route appRoute(ActorRef handler) {

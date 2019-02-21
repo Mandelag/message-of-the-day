@@ -33,9 +33,11 @@ dependencies {
     compile group: 'com.typesafe.akka', name: 'akka-stream_2.12', version: '2.5.21'
     compile group: 'com.typesafe.akka', name: 'akka-http_2.12', version: '10.1.7'
     compile group: 'com.typesafe.akka', name: 'akka-http-testkit_2.12', version: '10.1.7'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
 
     testCompile group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: '2.5.21'
     testCompile group: 'com.typesafe.akka', name: 'akka-stream-testkit_2.12', version: '2.5.21'
+    testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
 
     testCompile "junit:junit:4.12"
     testRuntime "org.junit.vintage:junit-vintage-engine:5.4.0"
@@ -72,4 +74,4 @@ tasks.withType(JavaExec) {
 }
 
 // Define the main class for the application
-mainClassName = 'com.example.app.App'
+mainClassName = 'com.mandelag.app.motd.App'
